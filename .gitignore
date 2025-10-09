@@ -1,0 +1,4 @@
+node_modules
+*.sw?
+server/client-dist
+server/dist

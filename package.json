@@ -1,0 +1,13 @@
+{
+  "name":"poc-ocr",
+  "private":true,
+  "workspaces":["client","server"],
+  "scripts":{
+    "build:client":"npm --workspace client run build && rm -rf server/client-dist && mkdir -p server/client-dist && cp -r client/dist/* server/client-dist/",
+    "build:server":"npm --workspace server run build",
+    "build":"npm run build:client && npm run build:server",
+    "dev:client":"npm --workspace client run dev",
+    "dev:server":"npm --workspace server run dev",
+    "test":"npm --workspace client run test && npm --workspace server run test"
+  }
+}
