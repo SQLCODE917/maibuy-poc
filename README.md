@@ -36,16 +36,33 @@ mkdir -p server/src && npm init -y
 
 - client's package.json defines `dev: "vite"`, which starts the Vite dev server which already supports HMR through React Refresh.
 - root package.json defines `dev:client` which runs the above in the client workspace.
-- Docekrfile defines 2 stages: Production and Development.
+- Dockerfile defines 2 stages: Production and Development.
 Production creates static assets and is meant for deployment to AWS.
 Development runs `vite dev` inside the container and uses hot reloading
+
 To build/run Production stage:
 ```
 docker build -t app-prod --target production .
-docker run -p 80:80 app-prod
+docker run -p 8080:8080 app-prod
 ```
+
 To build/run Development stage:
+
+Client:
 ```
-docker build -t app-dev --target development .
-docker run -p 5173:5173 -v $(pwd)/client:/app/client app-dev
+docker pull node:20-alpine
+docker build -t app-client-dev --target client-development .
+docker run --rm -it \
+  -p 5173:5173 \
+  -v $(pwd)/client:/app/client \
+  app-client-dev
+```
+
+Server:
+```
+docker build -t app-server-dev --target server-development . 
+docker run --rm -it \
+  -p 8080:8080 \
+  -v $(pwd)/server:/app/server \
+  app-server-dev
 ```

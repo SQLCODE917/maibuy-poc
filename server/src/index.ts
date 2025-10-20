@@ -5,4 +5,6 @@ const performOcr = async ({ imageBase64 }: { imageBase64: string }) => ({
 });
 
 const port = Number(process.env.PORT ?? 8080);
-createApp(performOcr).listen(port, () => console.log("listening", port));
+createApp(performOcr).then((app) => {
+  app.listen(port, () => console.log(`Server running on ${port}`));
+});

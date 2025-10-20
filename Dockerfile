@@ -1,5 +1,6 @@
 # Build stage
-FROM node:20-alpine AS build
+# ---- Base setup shared by both ----
+FROM node:20-alpine AS base
 WORKDIR /app
 
 # Install deps for all workspaces with caching
@@ -8,10 +9,13 @@ COPY client/package.json client/package.json
 COPY server/package.json server/package.json
 RUN npm ci --workspaces
 
-# Build client and server 
+# Copy source code 
 COPY client ./client
 COPY server ./server
 
+# =====================================================
+# ---- Production build (static) ----
+FROM base AS build
 RUN npm --workspace client run build \
  && rm -rf server/client-dist && mkdir -p server/client-dist \
  && cp -r client/dist/* server/client-dist/ \
@@ -21,7 +25,7 @@ RUN npm --workspace client run build \
 RUN npm prune --omit=dev
 
 # Runtime stage
-FROM node:20-alpine
+FROM node:20-alpine AS production
 WORKDIR /app
 ENV NODE_ENV=production
 
@@ -42,3 +46,24 @@ COPY --from=build /app/server/client-dist ./client-dist
 USER node
 EXPOSE 8080
 CMD ["node", "server/dist/index.js"]
+
+# =====================================================
+# ---- Client Development container (HMR) ----
+FROM base AS client-development
+WORKDIR /app/client
+ENV NODE_ENV=development
+EXPOSE 5173
+
+ENV VITE_PORT=5173
+ENV VITE_HOST=0.0.0.0
+ENV CHOKIDAR_USEPOLLING=true
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
+
+# =====================================================
+# ---- Server environment (Express * tsx watch)  ----
+FROM base AS server-development
+WORKDIR /app/server
+ENV NODE_ENV=development
+EXPOSE 8080
+CMD ["npm", "run", "dev"]
