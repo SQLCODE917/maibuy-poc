@@ -4,19 +4,12 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [
     react({
-      jsxRuntime: 'automatic',
-      babel: {
-        sourceMaps: true,
-      },
     }),
   ],
   build: {
     sourcemap: true,
     cssCodeSplit: true,
     target: "es2020"
-  },
-  esbuild: {
-    sourcemap: 'inline',
   },
   server: {
     host: '0.0.0.0',

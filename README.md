@@ -40,6 +40,15 @@ mkdir -p server/src && npm init -y
 Production creates static assets and is meant for deployment to AWS.
 Development runs `vite dev` inside the container and uses hot reloading
 
+## Sourcemaps
+
+- Included inline for the client - check that `vite.config.js` contains `build.sourceMap: true` and
+curl-ing any TSX file will reveal `//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIj` at the bottom.
+- React DevTools in Firefox still disable the "View source for this element" - that's because it's loading from Docker,
+and cannot resolve `/app/client/src/CameraOCRPage.tsx` to `/mnt/c/Users/.../maibuy-poc/client/src/CameraOCRPage.tsx`.
+
+## Build and run
+
 To build/run Production stage:
 ```
 docker build -t app-prod --target production .
